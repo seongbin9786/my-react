@@ -1,0 +1,226 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    display: flex;
+    height: 60px;
+    align-items: center;
+    font-size: 1.5em;
+    border: 1px solid #e1e1e1;
+    padding: 0px 10px;
+}
+
+header > .gnb {
+    background: white;
+    color: #000000;
+    border: 1px solid #d0d0d0;
+    border-radius: 30px;
+    font-size: 15px;
+    padding: 10px 20px;
+    text-decoration: none;
+    position: absolute;
+    cursor: pointer;
+}
+
+.gnb_l {
+    left: 15px;
+}
+
+.gnb_r {
+    right: 15px;
+}
+
+main {
+    padding: 20px;
+}
+
+#loginSection {
+    display: block;
+    text-align: center;
+}
+
+#loginSection > .content {
+    display: inline-block;
+    width: 30%;
+    border: 1px solid #515151;
+    border-radius: 10px;
+}
+
+.content > header {
+    display: flex;
+    justify-content: center;
+    border: 0;
+}
+
+.content > section {
+    padding: 20px;
+}
+
+.input-group {
+    margin: 15px 0px;
+}
+
+.input-group > input {
+    width: 80%;
+    height: 30px;
+}
+
+.input-group > button {
+    width: 82%;
+    height: 35px;
+}
+
+#theaterSection {
+    display: none;
+}
+
+.col-head {
+    text-align: center;
+    padding: 10px;
+    background-color: #2e2e2e;
+    color: white;
+}
+
+.row {
+    margin: 10px 15px;
+    display: flex;
+    align-items: center;
+}
+
+.row > .label {
+    margin-right: 20px;
+    width: 40px;
+    font-size: 0.8em;
+}
+
+#numOfPeopleNotice {
+    color: red;
+    font-size: 0.7rem;
+}
+
+.col-body > .info {
+    display: flex;
+    border: 1px solid #e1e1e1;
+    position: relative;
+}
+
+.section-numOfPeople,
+.section-reserveInfo {
+    width: 50%;
+    border: 1px solid #e1e1e1;
+}
+
+.checkbox {
+    margin: auto 0 0 auto;
+}
+
+.btn-group > .btn {
+    background: none;
+    color: #000000;
+    border: 1px solid #d0d0d0;
+    border-radius: 5px;
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0px 1px;
+    cursor: pointer;
+}
+
+.btn-group > .btn.toggle {
+    background: #2e2e2e;
+    color: white;
+    border: 2px solid #615b5b;
+}
+
+.col-body > .theater {
+    display: flex;
+    justify-content: center;
+    border: 1px solid #e1e1e1;
+    position: relative;
+    padding: 10px 10px;
+}
+
+#screenArea {
+    position: inherit;
+    background-color: rgb(231, 231, 231);
+    margin: 10px 0px;
+    text-align: center;
+}
+
+.seat-group {
+    display: flex;
+}
+
+.seat-group > #seatRow {
+    display: grid;
+    grid-template-columns: repeat(1, 40px);
+    grid-template-rows: repeat(3, 40px);
+}
+
+#seatRow > span {
+    border-top: 0.5px solid #a8a8a8;
+    border-bottom: 0.5px solid #a8a8a8;
+    font-size: 0.8em;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.seat-group > #theaterSeat {
+    display: grid;
+    grid-template-columns: repeat(13, 40px);
+    grid-template-rows: repeat(3, 40px);
+}
+
+button.seat {
+    background-color: rgb(152, 152, 152);
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    margin: 0.5px 0.5px;
+    border: 0.5px solid #d0d0d0;
+    border-radius: 5px;
+}
+
+button.seat:hover {
+    background-color: rgb(35, 90, 172);
+}
+
+button.musseukbox {
+    background-color: rgb(205, 40, 114);
+}
+
+button.handicap {
+    background-color: rgb(34, 140, 85);
+}
+
+button.clicked {
+    background-color: rgb(35, 90, 172);
+}
+
+button.disabled {
+    background-color: rgb(201, 201, 201);
+    pointer-events: none;
+}
+
+.col-footer {
+    background-color: #2e2e2e;
+    padding: 20px 0px;
+    text-align: center;
+}
+
+#reselect {
+    background-color: #af1f1f;
+    color: white;
+    font-size: 15px;
+    padding: 10px 20px;
+    text-decoration: none;
+    border: 0;
+    cursor: pointer;
+}
+
+#reselect:hover {
+    background-color: #b42626;
+}
