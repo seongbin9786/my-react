@@ -69,11 +69,7 @@ export class VHTMLNode implements VNode {
         // VDOM 생성 / DOM 추가
         const extraChildrenSpecs = newChildrenSpec.slice(this.childVDOMNodes.length);
         for (const extraChildSpec of extraChildrenSpecs) {
-            const extraChildVNode = this.nodeFactory.createVNode(
-                extraChildSpec,
-                this.myElement,
-                this.nodeFactory,
-            );
+            const extraChildVNode = this.nodeFactory.createVNode(extraChildSpec, this.myElement);
             this.childVDOMNodes.push(extraChildVNode);
             extraChildVNode.newRender();
         }
@@ -118,7 +114,7 @@ export class VHTMLNode implements VNode {
         // 2. 자식 신규 생성 및 DOM 추가
         // myElement=Text일 때는 자식이 Spec 상에 없으므로 생략된다.
         for (const childSpec of children) {
-            const domNode = this.nodeFactory.createVNode(childSpec, myElement, this.nodeFactory);
+            const domNode = this.nodeFactory.createVNode(childSpec, myElement);
             this.childVDOMNodes.push(domNode);
             domNode.newRender();
         }

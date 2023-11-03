@@ -41,11 +41,7 @@ export class VComponentNode implements VNode {
         // 2-2. Component가 반환한 Node를 생성하고, 렌더링을 호출
         // 단순히 domUpdater만 전달하고 종료함.
         // 실제 HTML을 렌더링하는 경우, child가 알아서 마운트할 것임.
-        const childVDOMNode = this.nodeFactory.createVNode(
-            childAnySpec,
-            this.domUpdater,
-            this.nodeFactory,
-        );
+        const childVDOMNode = this.nodeFactory.createVNode(childAnySpec, this.domUpdater);
         childVDOMNode.newRender();
         this.childVDOMNode = childVDOMNode;
     }

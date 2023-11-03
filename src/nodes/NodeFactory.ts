@@ -7,13 +7,13 @@ import { VHTMLNode } from "./VHTMLNode";
 import { VNode } from "./VNode";
 
 export class VNodeFactory {
-    createVNode(spec: AnySpec, domUpdater: DOMUpdater, nodeFactory: VNodeFactory): VNode {
+    createVNode(spec: AnySpec, domUpdater: DOMUpdater): VNode {
         if (spec instanceof HTMLSpec) {
-            return new VHTMLNode(spec, domUpdater, nodeFactory);
+            return new VHTMLNode(spec, domUpdater, this);
         }
 
         if (spec instanceof ComponentSpec) {
-            return new VComponentNode(spec, domUpdater, nodeFactory);
+            return new VComponentNode(spec, domUpdater, this);
         }
 
         throw new Error("[MyReact] createVNode에 비정상 Spec이 입력되었습니다.");

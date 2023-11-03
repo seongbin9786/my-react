@@ -21,7 +21,7 @@ export class MyReact {
             );
         }
 
-        const rootNode = this.nodeFactory.createVNode(rootDomSpec, parentElement, this.nodeFactory);
+        const rootNode = this.nodeFactory.createVNode(rootDomSpec, parentElement);
         console.log("rootNode:", rootNode);
         rootNode.newRender();
     }
