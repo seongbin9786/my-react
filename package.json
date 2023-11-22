@@ -1,8 +1,18 @@
 {
-    "name": "my-renderer",
-    "version": "0.0.1",
-    "description": "유사 JSX 렌더러를 직접 만들어보는 학습 프로젝트",
-    "type": "module",
-    "author": "seongbin9786@gmail.com",
-    "license": "MIT"
+  "name": "@seongbin9786/my-renderer",
+  "version": "0.0.1",
+  "description": "유사 JSX 렌더러를 직접 만들어보는 학습 프로젝트",
+  "type": "module",
+  "main": "src/index.js",
+  "author": "seongbin9786@gmail.com",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seongbin9786/my-renderer.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/seongbin9786/my-renderer/issues"
+  },
+  "homepage": "https://github.com/seongbin9786/my-renderer#readme"
 }
