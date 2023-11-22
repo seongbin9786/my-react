@@ -1,0 +1,8 @@
+{
+    "name": "my-renderer",
+    "version": "0.0.1",
+    "description": "유사 JSX 렌더러를 직접 만들어보는 학습 프로젝트",
+    "type": "module",
+    "author": "seongbin9786@gmail.com",
+    "license": "MIT"
+}
