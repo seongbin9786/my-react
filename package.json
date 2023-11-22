@@ -1,6 +1,6 @@
 {
   "name": "@seongbin9786/my-renderer",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "description": "유사 JSX 렌더러를 직접 만들어보는 학습 프로젝트",
   "type": "module",
   "main": "src/index.js",

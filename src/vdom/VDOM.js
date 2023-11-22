@@ -68,21 +68,15 @@ export class VDOM {
     }
 
     #mountToDOM() {
-        if (!this.#$current) {
-            return;
+        if (this.#$current) {
+            this.#$parent.appendChild(this.#$current);
         }
-        this.#$parent.appendChild(this.#$current);
-
+        // setTimeout을 활용해 동기적 렌더링이 끝난 후 호출되게 한다.
         setTimeout(() => {
-            if (!document.contains(this.#$current)) {
-                throw new Error('[VDOM] 컴포넌트가 마운트되지 않은 시점입니다.');
-            }
-            // TODO: 지금은 처음으로 null이 아닌 DOM을 렌더링한 시점이 됨.
-            // React에서는 어떻게 동작하는지 확인해보기
-            this.#component?.componentDidMount?.();
+            this.#component?.componentDidMount();
         });
     }
- 
+
     /**
      * DOM 교체 시에는 VDOM도 교체해줘야 함.
      * @param {VDOM} newVDOM 
