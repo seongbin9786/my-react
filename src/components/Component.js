@@ -45,6 +45,10 @@ export class Component {
         return true;
     }
 
+    componentDidMount() {}
+
+    componentWillUnmount() {}
+
     // 내부 구현 용도로 노출하지 않게
     [addDOMSpecChangeListener](listener) {
         this.#domSpecListeners.push(listener);
