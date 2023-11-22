@@ -48,6 +48,7 @@ export class VDOM {
         this.#createComponent();
         this.#createDOM();
         this.#mountToDOM();
+        this.#callComponentDidMount();
     }
 
     #createDOM() {
@@ -71,7 +72,11 @@ export class VDOM {
         if (this.#$current) {
             this.#$parent.appendChild(this.#$current);
         }
+    }
+
+    #callComponentDidMount() {
         // setTimeout을 활용해 동기적 렌더링이 끝난 후 호출되게 한다.
+        // 컴포넌트 마운트 최초 1회에만 호출한다.
         setTimeout(() => {
             this.#component?.componentDidMount();
         });
