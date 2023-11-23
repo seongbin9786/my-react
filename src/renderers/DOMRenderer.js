@@ -44,6 +44,8 @@ export class DOMRenderer {
     #attachProperties($target, domSpec) {
         const { props: { className, ...props } } = domSpec;
 
+        debug('[attachProperties]', $target, props);
+
         // Text는 set/removeAttribute가 없다.
         if ($target instanceof Text) {
             $target.nodeValue = props.nodeValue;
@@ -64,7 +66,6 @@ export class DOMRenderer {
             const isEventHandler = typeof props[property] === "function";
             if (isEventHandler) {
                 $target[property] = props[property];
-                debug($target, "에", property, " 이벤트 핸들러로 ", props[property], "를 등록함");
                 continue;
             }
             // innerHTML을 프로퍼티로 설정하게
@@ -77,6 +78,8 @@ export class DOMRenderer {
     };
 
     #removeProperties($target, props) {
+        debug('[removeProperties]', $target, props);
+
         // Text는 set/removeAttribute가 없다.
         if ($target instanceof Text) {
             $target.nodeValue = null;
