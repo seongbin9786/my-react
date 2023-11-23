@@ -146,13 +146,20 @@ export class VDOM {
         }
     }
 
+    #createChild(newChildDOMSpec) {
+        debug("newChildSpec:", newChildDOMSpec);
+        const newVDOM = new VDOM(newChildDOMSpec, this);
+        this.#childVDOMs.push(newVDOM);
+        debug('AFTER ADD CHILD:', this.#childVDOMs);
+    }
+
     #createChildren(newChildDOMSpecs) {
         for (const newChildSpec of newChildDOMSpecs) {
             debug("newChildSpec:", newChildSpec);
             const newVDOM = new VDOM(newChildSpec, this);
             this.#childVDOMs.push(newVDOM);
         }
-        debug('AFTER ADD CHILD:', this.#childVDOMs);
+        debug('AFTER ADD CHILDREN:', this.#childVDOMs);
     }
 
     #removeChildren(nextChildSize) {
@@ -160,7 +167,7 @@ export class VDOM {
             const childVDOM = this.#childVDOMs.pop();
             childVDOM.#removeDOM();
         }
-        debug('AFTER REMOVE CHILD:', this.#childVDOMs);
+        debug('AFTER REMOVE CHILDREN:', this.#childVDOMs);
     }
 
     #removeDOM() {
@@ -243,10 +250,31 @@ export class VDOM {
         return this.#component.render();
     }
 
+    /**
+     * 컴포넌트가 (컴포넌트 | null)을 jsx로 반환하는 경우는 컴포넌트의 current가 null일 수 있음 --> 로딩 시 null 후 컴포넌트 반환
+     * 이 때는 자식 컴포넌트가 마운트할 때 부모의 HTML Element가 null임.
+     * 이 때는 해당 컴포넌트의 부모 VDOM의 HTML Element에 마운트 해야 함.
+     * 이 때는 재귀적으로 찾아서 올라가야 함 --> (컴포넌트|null)을 반환하는 컴포넌트가 중첩된 경우.
+     * 
+     * 만약 부모 컴포넌트가 컴포넌트 타입이 아닌데도 $current=null 이면 예외 상황임. (발생 불가능할 것으로 예상)
+     */
+    #findParentDOM() {
+        if (this.#$root) {
+            return this.#$root;
+        }
+        if (this.#parentVDOM.#$current) {
+            return this.#parentVDOM.#$current;
+        }
+
+        return this.#parentVDOM.#findParentDOM();
+    }
+
     get #$parent() {
-        const $parent = this.#$root ?? this.#parentVDOM.#$current;
+        const $parent = this.#findParentDOM();
         if (!$parent) {
-            throw new Error(this);
+            const message = "부모 HTML Element를 찾을 수 없습니다.";
+            debug(message);
+            throw new Error(message);
         }
         return $parent;
     }
@@ -255,6 +283,11 @@ export class VDOM {
         return type[0] >= 'A' && type[0] <= 'Z';
     }
 
+    /** 
+     * VDOM 인스턴스가 Component Type인지 여부를 반환.
+     * 
+     * 반환하는 JSX와는 상관이 없음.
+     */
     #isComponentType() {
         const { type } = this.#domSpec;
         const isComponent = this.#isComponentName(type);
@@ -262,6 +295,10 @@ export class VDOM {
         return isComponent;
     }
 
+    /**
+     * DOMSpec이 컴포넌트인 경우 컴포넌트 인스턴스를 생성한다.
+     * componentDOMSpec과는 상관 없다.
+     */
     #createComponent() {
         if (!this.#isComponentType()) {
             return;
@@ -281,8 +318,11 @@ export class VDOM {
     
     /**
      * 컴포넌트의 전/후 DOMSpec을 반영한다.
-     * 컴포넌트 -> 컴포넌트
+     * 
+     * 컴포넌트가 반환하는 JSX만 달라지고, 
+     * 컴포넌트에 대응되는 VDOM의 인스턴스는 유지되는 경우.
      */
+    /** @param {DOMSpec} nextComponentDOMSpec */
     #updateDOMOfComponent(nextComponentDOMSpec) {
         // CASE 1. null -> null
         if (!this.#componentDOMSpec && !nextComponentDOMSpec) {
@@ -295,9 +335,16 @@ export class VDOM {
             return;
         }
 
-        // CASE 3. null -> DOM
+        // CASE 3. null -> DOM | ComponentType
         if (!this.#componentDOMSpec && nextComponentDOMSpec) {
             this.#componentDOMSpec = nextComponentDOMSpec;
+            // ComponentType인 경우에는 component를 만들고, render를 호출해줘야 함.
+            // 이 동작은 이미 VDOM에 캡슐화되어 있으므로, 신규 VDOM을 생성하는 것으로 해결
+            if (this.#isComponentName(nextComponentDOMSpec.type)) {
+                this.#createChild(nextComponentDOMSpec);
+                return;
+            }
+            // 일반 DOM인 경우
             this.#createDOM();
             this.#mountToDOM();
             return;
