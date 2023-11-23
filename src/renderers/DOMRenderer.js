@@ -67,6 +67,11 @@ export class DOMRenderer {
                 debug($target, "에", property, " 이벤트 핸들러로 ", props[property], "를 등록함");
                 continue;
             }
+            // innerHTML을 프로퍼티로 설정하게
+            if (property === "dangerouslySetInnerHTML") {
+                $target.innerHTML = props[property];
+                continue;
+            }
             $target.setAttribute(property, props[property]);
         }
     };
@@ -84,6 +89,12 @@ export class DOMRenderer {
             const isEventHandler = typeof props[property] === "function";
             if (isEventHandler) {
                 delete $target[property];
+                continue;
+            }
+
+            // innerHTML 제거
+            if (property === "dangerouslySetInnerHTML") {
+                delete $target.innerHTML;
                 continue;
             }
 
