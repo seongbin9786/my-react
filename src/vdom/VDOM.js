@@ -242,7 +242,7 @@ export class VDOM {
                 return;
             }
 
-            const nextComponentSpec = this.#renderComponent(nextDOMSpec);
+            const nextComponentSpec = this.#reRenderComponentWithNextProps(nextDOMSpec);
             debug(`replaceOrUpdate Update [Component: ${oldDOMSpec.type}]`, oldComponentSpec, "-->", nextComponentSpec);
             this.#updateDOMOfComponent(nextComponentSpec);
             this.#componentDOMSpec = nextComponentSpec;
@@ -260,7 +260,7 @@ export class VDOM {
      * 부모 DOM 변경으로 본인이 re-render 하게 될 때
      * this.#componentDOMSpec을 직접 갱신하지는 않는다.
      */
-    #renderComponent(nextDOMSpec) {
+    #reRenderComponentWithNextProps(nextDOMSpec) {
         if (!this.#isComponentType()) {
             throw new Error(`[VDOM] [${this.#domSpec.type}] 컴포넌트가 아닌 요소가 re-render를 시도했습니다.`);
         }
@@ -383,12 +383,29 @@ export class VDOM {
             return;
         }
 
-        // CASE 4. DOM -> DOM
-        // 무조건 같은 type을 반환해야 함.
-        // FIXME: 이게 React에서도 되는 경우면 replace 하기
+        // 여기서부턴 DOM|Component -> DOM|Component
+
+        // 같은 타입이 아니면 update는 불가능 (여기에 도달한 것은 논리 오류)
         if (this.#componentDOMSpec.type !== nextComponentDOMSpec.type) {
             throw new Error(`[VDOM] [${this.#componentDOMSpec.type}] 컴포넌트가 반환한 DOM의 type이 달라 렌더링할 수 없습니다.`);
         }
+        
+        // 여기서부터 동일 타입
+
+        // CASE 4. 컴포넌트가 동일 컴포넌트 반환
+        // FIXME: 큰 설계 개선이 필요할 듯. 그리고 어떤 Case가 있는지 전수 조사도 필요할 듯.
+        const justPropsChange = 
+            this.#isComponentName(this.#componentDOMSpec.type) &&
+            this.#isComponentName(nextComponentDOMSpec.type);
+        if (justPropsChange) {
+            const childVDOM = this.#childVDOMs[0];
+            childVDOM.#replaceOrUpdate(nextComponentDOMSpec); // e.g. Layout -> Layout
+            return;
+        }
+
+        // CASE 5. TODO: VDOM -> VDOM case도 있을 듯.. (현재는 이런 case가 없지만 추후 자주 발생할 듯)
+
+        // CASE 6. DOM -> DOM
         this.#updateDOM(nextComponentDOMSpec);
     }
 
