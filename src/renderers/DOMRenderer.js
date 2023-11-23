@@ -25,6 +25,7 @@ export class DOMRenderer {
      * @param {DOMSpec} nextSpec
      */
     updateDOM($target, oldSpec, nextSpec) {
+        debug('[updateDOM]', oldSpec, nextSpec);
         this.#removeProperties($target, oldSpec);
         this.#attachProperties($target, nextSpec);
     }

@@ -46,22 +46,37 @@ export class VDOM {
         this.#parentVDOM = parentVDOM;
         this.#$root = $root;
         this.#createComponent();
-        this.#createDOM();
+        this.#createDOMorChildVDOM();
         this.#mountToDOM();
         this.#callComponentDidMount();
     }
 
-    #createDOM() {
+    #createDOMorChildVDOM() {
+        // JSX가 null을 반환한 경우 -> 빈 DOM
+        // 빈 DOM <=> $current = null 이고 childVDOM = [] 이다.
         const domSpec = this.#isComponentType() ? this.#componentDOMSpec : this.#domSpec;
-
-        if (domSpec == null) {
-            debug(`createDOM: component [${this.#domSpec.type}] returns null --> NO DOM`);
+        const jsxIsNull = domSpec === null;
+        if (jsxIsNull) {
+            // this.#domSpec은 항상 값이 있다. 애초에 new VDOM()은 DOMSpec이 null일 때 호출되지 않는다.
+            debug(`[createDOMorChildVDOM]: JSX [${this.#domSpec.type}] returns null --> NO DOM`);
             this.#$current = null;
             this.#childVDOMs = [];
             return;
         }
 
-        debug('createDOM:', domSpec.type, domSpec.props, domSpec);
+        // 본인이 컴포넌트이고 그 컴포넌트가 또 컴포넌트를 반환한 경우 -> 새 VDOM을 자식으로 생성
+        const isComponentAndChildIsComponent = 
+            this.#isComponentType() && 
+            this.#isComponentName(this.#componentDOMSpec?.type);
+        if (isComponentAndChildIsComponent) {
+            debug(`[createDOMorChildVDOM]: component's child is component [${this.#componentDOMSpec.type}] --> NO DOM, new VDOM`);
+            this.#$current = null;
+            this.#childVDOMs = [ new VDOM(this.#componentDOMSpec, this) ];
+            return;
+        }
+
+        // JSX든, JSX가 반환한 컴포넌트든 DOM을 반환한 경우
+        debug('[createDOMorChildVDOM]:', domSpec.type, domSpec.props, domSpec);
         this.#$current = new DOMRenderer().makeDOM(domSpec);
         this.#childVDOMs = domSpec.children.map((childDOMSpec) => {
             return new VDOM(childDOMSpec, this);
@@ -171,16 +186,29 @@ export class VDOM {
     }
 
     #removeDOM() {
-        // TODO: 컴포넌트가 제거되지 않고 null을 렌더링할 때에도
-        // unmount가 호출되는지 확인해보기
-        // 어떤 게 더 좋은지 고민해보기
-        this.#component?.componentWillUnmount?.();
+        this.#component?.componentWillUnmount();
 
+        // VDOM이 컴포넌트 타입이고, 컴포넌트를 반환한 경우 $current = null이다.
+        if (this.#isComponentType() && this.#isComponentName(this.#componentDOMSpec.type)) {
+            const childVDOM = this.#childVDOMs[0];
+            childVDOM.#removeDOM(); // Component를 반환하는 Component가 아닐 때까지 재귀 호출
+            return;
+        }
+
+        // null
         if (!this.#$current) {
             return;
         }
+
         debug('removeDOM:', this.#$parent, this.#$current, this);
-        this.#$parent.removeChild(this.#$current);
+
+        /*
+        본인의 HTML Element가 null이지만
+        본인이 반환한 Component의 Element는 null이 아닐 수 있다.
+        이 경우 해당 Element를 제거해줘야 한다.
+        */
+        const $child = this.#$current ?? this.#childVDOMs[0].#$current;
+        this.#$parent.removeChild($child);
     }
 
     /**
@@ -221,7 +249,7 @@ export class VDOM {
             return;
         }
         
-        // CASE 2-2. DOM -> 
+        // CASE 2-2. DOM -> DOM
         debug(`replaceOrUpdate: Update [DOM: ${oldDOMSpec.type}]`, oldDOMSpec, "-->", nextDOMSpec);
         this.#updateDOM(nextDOMSpec);
 
@@ -280,6 +308,9 @@ export class VDOM {
     }
 
     #isComponentName(type) {
+        if (!type || type.length === 0) {
+            return false;
+        }
         return type[0] >= 'A' && type[0] <= 'Z';
     }
 
@@ -309,7 +340,8 @@ export class VDOM {
         const constructor = VDOM.componentMap.get(type);
         const component = new constructor(props);
         this.#component = component;
-        this.#componentDOMSpec = component.render(); // null일 수 있음
+        this.#componentDOMSpec = component.render(); // null일 수 있음, 컴포넌트일 수 있음.
+        // domSpec은 컴포넌트. current는 null ?
 
         // 차후 렌더링 시 update 호출하도록
         const listener = this.#handleComponentUpdate.bind(this);
@@ -328,10 +360,11 @@ export class VDOM {
         if (!this.#componentDOMSpec && !nextComponentDOMSpec) {
             return;
         }
-        
+
         // CASE 2. DOM -> null
         if (this.#componentDOMSpec && !nextComponentDOMSpec) {
             this.#removeDOM();
+            this.#childVDOMs = [];
             return;
         }
 
@@ -345,7 +378,7 @@ export class VDOM {
                 return;
             }
             // 일반 DOM인 경우
-            this.#createDOM();
+            this.#createDOMorChildVDOM();
             this.#mountToDOM();
             return;
         }
