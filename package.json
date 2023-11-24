@@ -16,7 +16,8 @@
   },
   "homepage": "https://github.com/seongbin9786/my-renderer#readme",
   "scripts": {
-    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch"
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
+    "test:watch-verbose": "NODE_OPTIONS=--experimental-vm-modules jest --watch --verbose"
   },
   "devDependencies": {
     "jest": "^29.7.0",
