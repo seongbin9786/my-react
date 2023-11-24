@@ -14,5 +14,13 @@
   "bugs": {
     "url": "https://github.com/seongbin9786/my-renderer/issues"
   },
-  "homepage": "https://github.com/seongbin9786/my-renderer#readme"
+  "homepage": "https://github.com/seongbin9786/my-renderer#readme",
+  "scripts": {
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "jsdom": "^22.1.0"
+  }
 }
