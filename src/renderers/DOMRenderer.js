@@ -74,6 +74,10 @@ export class DOMRenderer {
                 $target.innerHTML = props[property];
                 continue;
             }
+            // input.value는 remove/setAttribute으로 기존 값을 바꿀 수 없음.
+            if ($target.nodeName === "INPUT" && property === "value") {
+                $target.value = props[property];
+            }
             $target.setAttribute(property, props[property]);
         }
     };
@@ -100,6 +104,11 @@ export class DOMRenderer {
             if (property === "dangerouslySetInnerHTML") {
                 delete $target.innerHTML;
                 continue;
+            }
+
+            // input.value는 remove/setAttribute으로 기존 값을 바꿀 수 없음.
+            if ($target.nodeName === "INPUT" && property === "value") {
+                $target.value = null;
             }
 
             // 그 외는 attribute 방식으로 등록
