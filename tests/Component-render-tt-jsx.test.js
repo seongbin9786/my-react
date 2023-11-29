@@ -1,6 +1,6 @@
 import { describe, test, expect } from '@jest/globals';
 import { compareInnerHTML } from './compareInnerHTML';
-import { Component, jsx, registerComponent, renderRoot } from '../src';
+import { Component, jsx, renderRoot } from '../src';
 
 describe("Component", () => {
 
@@ -18,8 +18,7 @@ describe("Component", () => {
 
         // when
         const $body = document.getElementsByTagName('body').item(0);
-        registerComponent('SimpleDOM', SimpleDOM);
-        renderRoot(jsx`<SimpleDOM />`, $body);
+        renderRoot(jsx`<${SimpleDOM} />`, $body);
 
         // then
         const $rendered = document.getElementsByTagName('div')[0];
@@ -43,8 +42,7 @@ describe("Component", () => {
 
         // when
         const $body = document.getElementsByTagName('body').item(0);
-        registerComponent('SimpleDOM', SimpleDOM);
-        renderRoot(jsx`<SimpleDOM />`, $body);
+        renderRoot(jsx`<${SimpleDOM} />`, $body);
 
         // then
         const renderedHTML = document.getElementsByTagName('body')[0].innerHTML;
@@ -65,7 +63,7 @@ describe("Component", () => {
         class ParentComponentOfComponent extends Component {
             render() {
                 return jsx`
-                    <LeafComponent />
+                    <${LeafComponent} />
                 `;
             }
         }
@@ -80,9 +78,7 @@ describe("Component", () => {
 
         // when
         const $body = document.getElementsByTagName('body').item(0);
-        registerComponent('ParentComponentOfComponent', ParentComponentOfComponent);
-        registerComponent('LeafComponent', LeafComponent);
-        renderRoot(jsx`<ParentComponentOfComponent />`, $body);
+        renderRoot(jsx`<${ParentComponentOfComponent} />`, $body);
 
         // then
         const $rendered = document.getElementsByTagName('div')[0];
@@ -113,7 +109,7 @@ describe("Component", () => {
                 }
 
                 return jsx`
-                    <LeafComponent />
+                    <${LeafComponent} />
                 `;
             }
         }
@@ -128,9 +124,7 @@ describe("Component", () => {
 
         // when
         const $body = document.getElementsByTagName('body').item(0);
-        registerComponent('ParentComponentOfComponent', ParentComponentOfComponent);
-        registerComponent('LeafComponent', LeafComponent);
-        renderRoot(jsx`<ParentComponentOfComponent />`, $body);
+        renderRoot(jsx`<${ParentComponentOfComponent} />`, $body);
 
         // then
         await promiseForCheck;

@@ -1,6 +1,5 @@
 import { describe, test, expect } from '@jest/globals';
-import { compareInnerHTML } from './compareInnerHTML';
-import { Component, jsx, registerComponent, renderRoot } from '../src';
+import { Component, jsx, renderRoot } from '../src';
 
 describe("Component State", () => {
 
@@ -29,8 +28,7 @@ describe("Component State", () => {
             }
         }
         const $body = document.getElementsByTagName('body').item(0);
-        registerComponent('Counter', Counter);
-        renderRoot(jsx`<Counter />`, $body);
+        renderRoot(jsx`<${Counter} />`, $body);
 
         // when
         const $button = document.getElementsByTagName('button').item(0);
@@ -62,8 +60,7 @@ describe("Component State", () => {
             }
         }
         const $body = document.getElementsByTagName('body').item(0);
-        registerComponent('Counter', Counter);
-        renderRoot(jsx`<Counter />`, $body);
+        renderRoot(jsx`<${Counter} />`, $body);
 
         // when
         const $button = document.getElementsByTagName('button').item(0);
@@ -87,7 +84,7 @@ describe("Component State", () => {
             
             render() {
                 return jsx`
-                    <ChildComponent />
+                    <${ChildComponent} />
                 `;
             }
         }
@@ -107,9 +104,7 @@ describe("Component State", () => {
 
         // when
         const $body = document.getElementsByTagName('body').item(0);
-        registerComponent('ParentComponent', ParentComponent);
-        registerComponent('ChildComponent', ChildComponent);
-        renderRoot(jsx`<ParentComponent />`, $body);
+        renderRoot(jsx`<${ParentComponent} />`, $body);
         forceUpdate();
 
         // then
@@ -139,7 +134,7 @@ describe("Component State", () => {
 
             render() {
                 return jsx`
-                    <ChildDisplay value=${this.state.counter} />
+                    <${ChildDisplay} value=${this.state.counter} />
                 `;
             }
         }
@@ -155,9 +150,7 @@ describe("Component State", () => {
         }
 
         const $body = document.getElementsByTagName('body').item(0);
-        registerComponent('ParentCounter', ParentCounter);
-        registerComponent('ChildDisplay', ChildDisplay);
-        renderRoot(jsx`<ParentCounter />`, $body);
+        renderRoot(jsx`<${ParentCounter} />`, $body);
         
         // when
         increase();

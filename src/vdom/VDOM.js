@@ -19,9 +19,6 @@ const debug = createDebug('VDOM');
  */
 export class VDOM {
 
-    // 사용자는 컴포넌트 타입을 (String, constructor)로 등록한다.
-    static componentMap = new Map();
-
     /** @type {VDOM | null} */          #parentVDOM;
     /** @type {VDOM[]} */               #childVDOMs;
     /** @type {HTMLElement | null} */   #$current;
@@ -67,7 +64,7 @@ export class VDOM {
         // 본인이 컴포넌트이고 그 컴포넌트가 또 컴포넌트를 반환한 경우 -> 새 VDOM을 자식으로 생성
         const isComponentAndChildIsComponent = 
             this.#isComponentType() && 
-            this.#isComponentName(this.#componentDOMSpec?.type);
+            this.#isComponent(this.#componentDOMSpec?.type);
         if (isComponentAndChildIsComponent) {
             debug(`[createDOMorChildVDOM]: component's child is component [${this.#componentDOMSpec.type}] --> NO DOM, new VDOM`);
             this.#$current = null;
@@ -189,7 +186,7 @@ export class VDOM {
         this.#component?.componentWillUnmount();
 
         // VDOM이 컴포넌트 타입이고, 컴포넌트를 반환한 경우 $current = null이다.
-        if (this.#isComponentType() && this.#isComponentName(this.#componentDOMSpec.type)) {
+        if (this.#isComponentType() && this.#isComponent(this.#componentDOMSpec.type)) {
             const childVDOM = this.#childVDOMs[0];
             childVDOM.#removeDOM(); // Component를 반환하는 Component가 아닐 때까지 재귀 호출
             return;
@@ -307,11 +304,8 @@ export class VDOM {
         return $parent;
     }
 
-    #isComponentName(type) {
-        if (!type || type.length === 0) {
-            return false;
-        }
-        return type[0] >= 'A' && type[0] <= 'Z';
+    #isComponent(type) {
+        return type.prototype instanceof Component;
     }
 
     /** 
@@ -321,7 +315,7 @@ export class VDOM {
      */
     #isComponentType() {
         const { type } = this.#domSpec;
-        const isComponent = this.#isComponentName(type);
+        const isComponent = this.#isComponent(type);
         debug("isComponentName:", type, isComponent);
         return isComponent;
     }
@@ -337,7 +331,7 @@ export class VDOM {
         
         const { type, props } = this.#domSpec;
         debug('creating component:', type);
-        const constructor = VDOM.componentMap.get(type);
+        const constructor = type;
         const component = new constructor(props);
         this.#component = component;
         this.#componentDOMSpec = component.render(); // null일 수 있음, 컴포넌트일 수 있음.
@@ -373,7 +367,7 @@ export class VDOM {
             this.#componentDOMSpec = nextComponentDOMSpec;
             // ComponentType인 경우에는 component를 만들고, render를 호출해줘야 함.
             // 이 동작은 이미 VDOM에 캡슐화되어 있으므로, 신규 VDOM을 생성하는 것으로 해결
-            if (this.#isComponentName(nextComponentDOMSpec.type)) {
+            if (this.#isComponent(nextComponentDOMSpec.type)) {
                 this.#createChild(nextComponentDOMSpec);
                 return;
             }
@@ -395,8 +389,8 @@ export class VDOM {
         // CASE 4. 컴포넌트가 동일 컴포넌트 반환
         // FIXME: 큰 설계 개선이 필요할 듯. 그리고 어떤 Case가 있는지 전수 조사도 필요할 듯.
         const justPropsChange = 
-            this.#isComponentName(this.#componentDOMSpec.type) &&
-            this.#isComponentName(nextComponentDOMSpec.type);
+            this.#isComponent(this.#componentDOMSpec.type) &&
+            this.#isComponent(nextComponentDOMSpec.type);
         if (justPropsChange) {
             const childVDOM = this.#childVDOMs[0];
             childVDOM.#replaceOrUpdate(nextComponentDOMSpec); // e.g. Layout -> Layout
