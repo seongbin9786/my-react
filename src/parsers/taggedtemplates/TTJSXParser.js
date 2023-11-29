@@ -159,16 +159,17 @@ export class TTJSXParser {
         
         this.#readNextToken(); // idx 위치 이동 용도
 
-        // CASE 2. Text Node
-        if (typeof token === "string") {
-            return new DOMSpec("__Text", {
-                nodeValue: token,
-            });
-        }
-
-        // CASE 3. 표현식인 경우
+        // CASE 2. 표현식인 경우
         if (token instanceof DOMSpec) {
             return token;
+        }
+        
+        // CASE 3. object, function 이외의 기타 타입은 Text Node로 출력
+        if (typeof token !== "object") {
+            return new DOMSpec("__TEXT", {
+                // TODO: String() 으로 값이 바뀔 수 있는지 체크하기
+                nodeValue: String(token),
+            });
         }
 
         throw new Error(`Unexpected token ${token}. expected children`);
