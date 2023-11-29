@@ -10,7 +10,7 @@ export class TTJSXFactory {
     parseTTJSX(rawStrings, rawValues) {
         const tokenizer = new TTJSXTokenizer();
         const tokens = tokenizer.tokenize(rawStrings, rawValues);
-        const parser = new TTJSXParser();
+        const parser = new TTJSXParser(tokens, true);
         return parser.parse(tokens);
     }
 }
