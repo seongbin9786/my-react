@@ -53,7 +53,6 @@ export class TTJSXParser {
      * @returns {DOMSpec} DOMSpec 객체 (Renderer의 입력이 된다.)
      */
     parse() {
-        debug("[PARSE STARTS]");
         debug("tokens:", this.#tokens);
 
         this.#parseOpeningTag();
@@ -63,8 +62,6 @@ export class TTJSXParser {
         }
 
         this.#parseChildren();
-
-        debug("[PARSE ENDS]");
 
         return this.#createDOMSpec();
     }
@@ -111,11 +108,13 @@ export class TTJSXParser {
      */
     #parseProp() {
         const token = this.#readNextToken();
+        debug('[parseProp] key:', token);
 
         // CASE 1. String: key로 간주하고 다음 토큰을 value로 해서 등록
         if (typeof token === "string") {
             const key = token;
             const value = this.#readNextToken();
+            debug('[parseProp] value:', value);
 
             // style을 객체로 넘기면 변환해주기
             if (key === "style" && typeof value === "object") {
@@ -126,7 +125,12 @@ export class TTJSXParser {
             return;
         }
 
-        // CASE 2. Object: 풀어 해쳐서 key-value 등록
+        // CASE 2. 배열인 경우: 단순 값으로 취급
+        // if (token instanceof Array) {
+        //     this.#props[token] = this.#readNextToken();
+        // }
+
+        // CASE 3. Object: 풀어 해쳐서 key-value 등록
         for (const [key, value] of Object.entries(token)) {
             this.#props[key] = value;
         }
@@ -141,7 +145,11 @@ export class TTJSXParser {
     #parseChildren() {
         while (!this.#checkNextTokenIsClosingTag()) {
             const child = this.#parseChild();
-            this.#children.push(child);
+            if (child instanceof Array) { // 표현식이 배열일 수 있음.
+                this.#children.push(...child);
+            } else {
+                this.#children.push(child);
+            }
         }
     }
 
@@ -166,15 +174,30 @@ export class TTJSXParser {
         
         this.#readNextToken(); // idx 위치 이동 용도
 
-        // CASE 2. 표현식인 경우
+        // CASE 2. 표현식이 DOMSpec인 경우
         if (token instanceof DOMSpec) {
             return token;
         }
         
-        // CASE 3. object, function 이외의 기타 타입은 Text Node로 출력
+        // CASE 3. 표현식이 DOMSpec의 배열인 경우
+        if (token instanceof Array) {
+            // 배열 요소에 대한 검증
+            return token.map((item) => {
+                if (item instanceof DOMSpec) { // DOMSpec이면 통과
+                    return item;
+                }
+                if (typeof item !== "object") {
+                    return new DOMSpec("__TEXT", {
+                        nodeValue: String(item),
+                    });
+                }
+                throw new Error(`Unexpected token ${item}. expected child`);
+            });
+        }
+
+        // CASE 4. 표현식이 object, function 이외의 기타 타입인 경우 Text Node로 출력
         if (typeof token !== "object") {
             return new DOMSpec("__TEXT", {
-                // TODO: String() 으로 값이 바뀔 수 있는지 체크하기
                 nodeValue: String(token),
             });
         }

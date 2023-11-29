@@ -131,4 +131,41 @@ describe("Component", () => {
         const $rendered = document.getElementsByTagName('div')[0];
         expect($rendered.textContent).toEqual("hello");
     });
+    
+    test("자식 컴포넌트에 프로퍼티 값으로 배열을 넘겼을 때 정상적으로 전달된다.", () => {
+        // 버그: 배열을 넘겼는데, 객체가 도착하는 현상 확인
+        // given
+        class Parent extends Component {
+            render() {
+                return jsx`
+                    <${Child} arr=${[ 1, 2, 3 ]} />
+                `;
+            }
+        }
+
+        class Child extends Component {
+            render() {
+                return jsx`
+                    <div>
+                        ${this.props.arr.map((num) => jsx`
+                            <span id=${num}></span>
+                        `)}
+                    </div>
+                `;
+            }
+        }
+
+        // when
+        const $body = document.getElementsByTagName('body').item(0);
+        renderRoot(jsx`<${Parent} />`, $body);
+
+        // then
+        const $1 = document.getElementById('1');
+        const $2 = document.getElementById('2');
+        const $3 = document.getElementById('3');
+        expect($1).toBeTruthy();
+        expect($2).toBeTruthy();
+        expect($3).toBeTruthy();
+    });
+
 });

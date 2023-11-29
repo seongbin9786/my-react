@@ -19,7 +19,7 @@ export class TTJSXTokenizer {
      */
     tokenize(strings, values) {
         
-        const mappedStrings = strings.map((string) => 
+        const arrayOfStringTokens = strings.map((string) => 
             string
                 // 1. 단순 개행 제거
                 .replace(/\r|\n|\t/g, "") 
@@ -45,14 +45,14 @@ export class TTJSXTokenizer {
                 .filter((v) => v.length > 0) // 공백만 있던 case 제거
         );
 
-        const joinedStringsAndValues = mappedStrings.reduce((sum, cur, idx) => {
+        const tokens = arrayOfStringTokens.reduce((sum, stringTokens, idx) => {
             if (idx === 0) {
-                return [ cur ];
+                return [ ...stringTokens ];
             }
             
-            return [ ...sum, values[idx - 1], cur ];
+            return [ ...sum, values[idx - 1], ...stringTokens ];
         });
 
-        return joinedStringsAndValues.flat();
+        return tokens;
     }
 }

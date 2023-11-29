@@ -9,6 +9,29 @@ describe("Tokenizer", () => {
     class SimpleComp extends Component {} // 토크나이저가 Component 인스턴스 여부를 확인하지는 않음.
     const childObject = new DOMSpec("div", {}); // 토크나이저가 DOMSpec 인스턴스 여부를 확인하지는 않음. 
     
+    /*
+        발생 오류: TypeError: this.props.arr.map is not a function
+        디버깅 출력: tokens: [ '<', [class Child extends Component], 'arr', 1, 2, 3, '/', '>' ]
+        원인 소스 코드: prop value에 쓰일 배열 마저 flat() 된 것.
+    */
+    test("value가 배열인 prop도 파싱할 수 있다", () => {
+
+        // given
+        const { strings, values } = TTJSXTokenizer.raw`
+            <div key=${[1,2,3]} />
+        `;
+        const tokenizer = new TTJSXTokenizer();
+
+        // when
+        const result = tokenizer.tokenize(strings, values);
+
+        // then
+        const expected = [
+            '<', 'div', 'key', [ 1, 2, 3 ], '/', '>',
+        ];
+        expect(result).toEqual(expected);
+    })
+
     test.each([
         [
             "type [string], props [no], children [no]",
