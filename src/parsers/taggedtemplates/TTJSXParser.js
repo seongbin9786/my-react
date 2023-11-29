@@ -115,7 +115,14 @@ export class TTJSXParser {
         // CASE 1. String: key로 간주하고 다음 토큰을 value로 해서 등록
         if (typeof token === "string") {
             const key = token;
-            this.#props[key] = this.#readNextToken();
+            const value = this.#readNextToken();
+
+            // style을 객체로 넘기면 변환해주기
+            if (key === "style" && typeof value === "object") {
+                this.#props[key] = this.#convertToStylePropString(value);
+            } else {
+                this.#props[key] = value;
+            }
             return;
         }
 
@@ -289,4 +296,9 @@ export class TTJSXParser {
         return this.#tokens[targetIdx];
     }
 
+    #convertToStylePropString(styleObject) {
+        return Object.entries(styleObject)
+            .map(([key, value]) => `${key}:${value}`)
+            .join(";");
+    }
 }
