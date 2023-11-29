@@ -1,5 +1,5 @@
 import { describe, test, expect } from "@jest/globals";
-import { Component, jsx, registerComponent, renderRoot } from "../src";
+import { Component } from "../src";
 import { TTJSXTokenizer } from "../src/parsers/taggedtemplates/TTJSXTokenizer";
 import { DOMSpec } from "../src/spec/DOMSpec";
 

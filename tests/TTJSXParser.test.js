@@ -3,7 +3,7 @@ import { TTJSXParser } from "../src/parsers/taggedtemplates/TTJSXParser";
 import { DOMSpec } from "../src/spec/DOMSpec";
 import { Component } from "../src";
 
-describe.only("Parser", () => {
+describe("Parser", () => {
 
     // 테스트에 사용되는 fixture
     class SimpleComp extends Component {} // 토크나이저가 Component 인스턴스 여부를 확인하지는 않음.
