@@ -3,7 +3,7 @@ import { Component, jsx, registerComponent, renderRoot } from "../src";
 import { TTJSXTokenizer } from "../src/parsers/taggedtemplates/TTJSXTokenizer";
 import { DOMSpec } from "../src/spec/DOMSpec";
 
-describe.only("Tokenizer", () => {
+describe("Tokenizer", () => {
 
     // 테스트에 사용되는 fixture
     class SimpleComp extends Component {} // 토크나이저가 Component 인스턴스 여부를 확인하지는 않음.
@@ -240,8 +240,8 @@ describe.only("Tokenizer", () => {
     ])("%s", (_title, { strings, values }, expected) => {
 
         // when
-        const parser = new TTJSXTokenizer();
-        const result = parser.tokenize(strings, values);
+        const tokenizer = new TTJSXTokenizer();
+        const result = tokenizer.tokenize(strings, values);
 
         // then
         expect(result).toEqual(expected);
