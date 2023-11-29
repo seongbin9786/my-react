@@ -11,6 +11,15 @@ describe("Parser", () => {
     
     test.each([
         [
+            "토큰에 null이 있으면 무시된다",
+            [
+                "<", "div", ">",
+                null,
+                "<", "/", "div", ">"
+            ],
+            new DOMSpec('div', {}),
+        ],
+        [
             "type [string], props [no], children [no]",
             [
                 "<", "div", ">",

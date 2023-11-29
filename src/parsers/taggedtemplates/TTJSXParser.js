@@ -138,18 +138,24 @@ export class TTJSXParser {
 
     /**
      * 토큰에서 children을 읽어 children 배열에 등록한다.
-     * 
-     * child는 항상 DOMSpec이다?
-     * -> text node는 어떻게 하려고? __TEXT에 nodeValue를 넣어줘서 만들면 됨.
      */
     #parseChildren() {
         while (!this.#checkNextTokenIsClosingTag()) {
             const child = this.#parseChild();
-            if (child instanceof Array) { // 표현식이 배열일 수 있음.
-                this.#children.push(...child);
-            } else {
-                this.#children.push(child);
+
+            // null child
+            if (child == null) {
+                continue;
             }
+
+            // 배열 children
+            if (child instanceof Array) {
+                this.#children.push(...child);
+                continue;
+            }
+            
+            // 단일 child
+            this.#children.push(child);
         }
     }
 
@@ -166,7 +172,6 @@ export class TTJSXParser {
             // FIXME: 더 좋은 방법 찾기
             // 좀.. 이상하긴 한데 최선의 방법이라고 생각함. 
             // 더해줘야 함. childParser의 idx는 0부터 시작이어서.
-            // TODO: idx를 그냥 더하는 게 맞는지 확인 필요
             this.#idx += childParser.#idx; 
             
             return child;
@@ -202,6 +207,12 @@ export class TTJSXParser {
             });
         }
 
+        // CASE 5. null인 경우
+        if (token === null) {
+            return null;
+        }
+
+        // undefined, object, function
         throw new Error(`Unexpected token ${token}. expected children`);
     }
 
