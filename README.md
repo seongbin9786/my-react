@@ -1,5 +1,13 @@
-# My Renderer
+# My React
 
-Tagged Template을 활용한 유사-JSX를 렌더링하는 렌더러입니다.
+Immitation of React.
 
-React 형식의 Class Component를 지원합니다.
+## Features
+
+### 1. JSX-like syntax
+
+Tagged Template을 활용해 JSX와 유사하게 마크업을 기술할 수 있도록 지원
+
+### 2. Class Component
+
+React 형식의 Class Component를 지원
