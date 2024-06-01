@@ -62,6 +62,7 @@ export class VDOM {
         }
 
         // 본인이 컴포넌트이고 그 컴포넌트가 또 컴포넌트를 반환한 경우 -> 새 VDOM을 자식으로 생성
+        // Q. 컴포넌트가 아니어도 컴포넌트를 반환하면 어차피 VDOM을 새로 만들어야 되는 거 아닌가요?
         const isComponentAndChildIsComponent = 
             this.#isComponentType() && 
             this.#isComponent(this.#componentDOMSpec?.type);
