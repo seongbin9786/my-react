@@ -43,19 +43,19 @@ export class VDOM {
         this.#parentVDOM = parentVDOM;
         this.#$root = $root;
         this.#createComponent();
-        this.#createDOMorChildVDOM();
+        this.#createDOM();
         this.#mountToDOM();
         this.#callComponentDidMount();
     }
 
-    #createDOMorChildVDOM() {
+    #createDOM() {
         // JSX가 null을 반환한 경우 -> 빈 DOM
         // 빈 DOM <=> $current = null 이고 childVDOM = [] 이다.
         const domSpec = this.#isComponentType() ? this.#componentDOMSpec : this.#domSpec;
         const jsxIsNull = domSpec === null;
         if (jsxIsNull) {
             // this.#domSpec은 항상 값이 있다. 애초에 new VDOM()은 DOMSpec이 null일 때 호출되지 않는다.
-            debug(`[createDOMorChildVDOM]: JSX [${this.#domSpec.type}] returns null --> NO DOM`);
+            debug(`[createDOM]: JSX [${this.#domSpec.type}] returns null --> NO DOM`);
             this.#$current = null;
             this.#childVDOMs = [];
             return;
@@ -67,15 +67,16 @@ export class VDOM {
             this.#isComponentType() && 
             this.#isComponent(this.#componentDOMSpec?.type);
         if (isComponentAndChildIsComponent) {
-            debug(`[createDOMorChildVDOM]: component's child is component [${this.#componentDOMSpec.type}] --> NO DOM, new VDOM`);
+            debug(`[createDOM]: component's child is component [${this.#componentDOMSpec.type}] --> NO DOM, new VDOM`);
             this.#$current = null;
             this.#childVDOMs = [ new VDOM(this.#componentDOMSpec, this) ];
             return;
         }
 
         // JSX든, JSX가 반환한 컴포넌트든 DOM을 반환한 경우
-        debug('[createDOMorChildVDOM]:', domSpec.type, domSpec.props, domSpec);
+        debug('[createDOM]:', domSpec.type, domSpec.props, domSpec);
         this.#$current = new DOMRenderer().makeDOM(domSpec);
+        // VDOM을 만들면 VDOM이 알아서 DOM도 만들어주니, 직접 DOM을 만들기보다, 각 VDOM에서 알아서 VDOM을 만드는 게 더 좋다.
         this.#childVDOMs = domSpec.children.map((childDOMSpec) => {
             return new VDOM(childDOMSpec, this);
         });
@@ -159,7 +160,11 @@ export class VDOM {
         }
     }
 
-    #createChild(newChildDOMSpec) {
+    /**
+     * DOM을 생성할 때 컴포넌트 타입인 경우 Renderer가 생성할 수 없고, 다시 new Component() 후 render()의 결과물에 대해 Renderer에게 위임해야 한다.
+     * 이렇게 되면 로직이 재귀적으로 반복되기 때문에, 이를 새로운 VDOM에 위임하는 것으로 해결한다.
+     */
+    #createDOMAsChildForComponentType(newChildDOMSpec) {
         debug("newChildSpec:", newChildDOMSpec);
         const newVDOM = new VDOM(newChildDOMSpec, this);
         this.#childVDOMs.push(newVDOM);
@@ -359,7 +364,7 @@ export class VDOM {
         // CASE 2. DOM -> null
         if (this.#componentDOMSpec && !nextComponentDOMSpec) {
             this.#removeDOM();
-            this.#childVDOMs = [];
+            this.#childVDOMs = []; // Q. Child VDOM 각각의 참조들을 제거해줘야 하는 거 아닐까요?
             return;
         }
 
@@ -369,11 +374,11 @@ export class VDOM {
             // ComponentType인 경우에는 component를 만들고, render를 호출해줘야 함.
             // 이 동작은 이미 VDOM에 캡슐화되어 있으므로, 신규 VDOM을 생성하는 것으로 해결
             if (this.#isComponent(nextComponentDOMSpec.type)) {
-                this.#createChild(nextComponentDOMSpec);
+                this.#createDOMAsChildForComponentType(nextComponentDOMSpec);
                 return;
             }
             // 일반 DOM인 경우
-            this.#createDOMorChildVDOM();
+            this.#createDOM();
             this.#mountToDOM();
             return;
         }
