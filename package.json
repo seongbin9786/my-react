@@ -16,6 +16,7 @@
   },
   "homepage": "https://github.com/seongbin9786/my-renderer#readme",
   "scripts": {
+    "build": "rollup src/index.js --file dist/bundle.js --format iife",
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules jest --watch",
     "test:watch-verbose": "NODE_OPTIONS=--experimental-vm-modules jest --watch --verbose"
   },
